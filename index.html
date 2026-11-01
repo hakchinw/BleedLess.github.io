@@ -1,0 +1,908 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>BleedLess</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=DM+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: clean medical-retail look in the packaging's black, white and red. Alternating white and light-grey bands, one product photo per job. The strip colors (blue, green, red, black) are the only chromatic data colors. */
+:root {
+  --bg: #FFFFFF;
+  --alt: #F3F4F6;
+  --surface: #FFFFFF;
+  --fg: #111214;
+  --muted: #5A5F68;
+  --line: #E2E4E8;
+  --brand: #D9232B;
+  --on-brand: #FFFFFF;
+  --c-blue: #1F6FD0;
+  --c-green: #17803D;
+  --c-red: #D9232B;
+  --c-black: #111214;
+  --on-blue: #FFFFFF;
+  --on-green: #FFFFFF;
+  --on-red: #FFFFFF;
+  --on-black: #FFFFFF;
+  --map-land: #E6E9ED;
+  --map-road: #FFFFFF;
+  --map-water: #BBD6E8;
+  --map-park: #CDE5D2;
+  --display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "DM Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D0E10; --alt: #141619; --surface: #1A1C20; --fg: #F1F2F4; --muted: #A0A5AD; --line: #2B2E34;
+    --brand: #FF5A60; --on-brand: #1A0204;
+    --c-blue: #5A9BF0; --c-green: #4CC47F; --c-red: #FF6B70; --c-black: #000000;
+    --on-blue: #06101E; --on-green: #04150B; --on-red: #1D0305; --on-black: #FFFFFF;
+    --map-land: #162630; --map-road: #26394A; --map-water: #1A3A52; --map-park: #1C392B;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D0E10; --alt: #141619; --surface: #1A1C20; --fg: #F1F2F4; --muted: #A0A5AD; --line: #2B2E34;
+  --brand: #FF5A60; --on-brand: #1A0204;
+  --c-blue: #5A9BF0; --c-green: #4CC47F; --c-red: #FF6B70; --c-black: #000000;
+  --on-blue: #06101E; --on-green: #04150B; --on-red: #1D0305; --on-black: #FFFFFF;
+  --map-land: #162630; --map-road: #26394A; --map-water: #1A3A52; --map-park: #1C392B;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+body { background: var(--bg); color: var(--fg); font: 400 1rem/1.6 var(--body); margin: 0; padding-block: 0; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60; background: var(--bg); }
+.wrap { max-width: 1200px; margin-inline: auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+a { color: inherit; }
+img { display: block; max-width: 100%; height: auto; }
+:focus-visible { outline: 3px solid var(--fg); outline-offset: 2px; border-radius: 4px; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* announcement + header */
+.annc { background: var(--fg); color: var(--bg); font-size: .88rem; }
+.annc .wrap { padding-block: .55rem; text-align: center; }
+.annc a { font-weight: 600; text-underline-offset: 3px; }
+.site { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50; background: var(--bg); border-bottom: 1px solid var(--line); }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: .5rem 1.6rem; flex-wrap: wrap; padding-block: .75rem; }
+.logo { font: 800 1.5rem/1 var(--display); letter-spacing: -.025em; text-decoration: none; }
+.logo .b1 { color: var(--brand); }
+.site nav { min-width: 0; flex: 1 1 auto; overflow-x: auto; }
+.site nav ul { display: flex; gap: 1.5rem; list-style: none; margin: 0; padding: 0; white-space: nowrap; }
+.site nav a { text-decoration: none; font-size: .93rem; font-weight: 500; color: var(--muted); padding-block: .3rem; display: inline-block; }
+.site nav a:hover { color: var(--fg); }
+@media (max-width: 860px) { .site nav { order: 3; flex-basis: 100%; } }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; padding: .8rem 1.3rem; border-radius: 6px; border: 1.5px solid var(--fg); font: 600 .98rem/1.2 var(--body); text-decoration: none; cursor: pointer; background: transparent; color: var(--fg); }
+.btn.primary { background: var(--fg); color: var(--bg); }
+.btn.brand { background: var(--brand); border-color: var(--brand); color: var(--on-brand); }
+.btn.sm { padding: .55rem 1rem; font-size: .9rem; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.step { width: 2.4rem; height: 2.4rem; border-radius: 6px; border: 1.5px solid var(--line); background: var(--surface); color: var(--fg); font: 500 1.2rem/1 var(--mono); cursor: pointer; }
+.step:hover { border-color: var(--fg); }
+
+/* sections */
+section { padding-block: clamp(3rem, 7vw, 5.5rem); scroll-margin-top: 6.5rem; }
+section.alt { background: var(--alt); }
+/* video hero */
+.vhero { padding: 0; background: #0b1114; }
+.vframe { position: relative; max-width: 1600px; margin-inline: auto; aspect-ratio: 2 / 1; overflow: hidden; background: #0b1114; }
+.vframe video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; background: #0b1114; }
+.vbar { background: var(--bg); border-bottom: 1px solid var(--line); }
+.vbar-in { display: grid; grid-template-columns: 1fr; gap: 1.1rem; padding-block: clamp(1.6rem, 4vw, 2.8rem); align-items: end; }
+.vbar-in > * { min-width: 0; }
+.vbar h1 { font-size: clamp(1.9rem, 4.6vw, 3.4rem); }
+.vbar .lede { margin-top: 0; }
+.vbar .cta { margin-top: 1.1rem; }
+@media (min-width: 861px) { .vbar-in { grid-template-columns: 1.1fr .9fr; gap: 1.2rem clamp(1.5rem, 4vw, 3.5rem); } }
+.vctl { position: absolute; bottom: .9rem; right: max(16px, env(safe-area-inset-right, 0px)); display: flex; gap: .5rem; }
+.vbtn { display: inline-flex; align-items: center; gap: .45rem; padding: .5rem .85rem; border-radius: 999px; border: 1.5px solid rgba(255,255,255,.85); background: rgba(8,12,15,.55); color: #fff; font: 600 .85rem/1 var(--body); cursor: pointer; }
+.vbtn:hover { background: rgba(8,12,15,.8); }
+.vbtn:focus-visible { outline-color: #fff; }
+
+/* alt-section hero */
+section.hero { padding-block: clamp(2.2rem, 5vw, 4rem) clamp(2.6rem, 6vw, 4.6rem); }
+.eyebrow { font: 500 .76rem/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0 0 1rem; display: flex; align-items: center; gap: .7rem; }
+.eyebrow::before { content: ""; width: 1.6rem; height: 2px; background: var(--brand); flex: none; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: -.025em; }
+h1 { font-weight: 800; font-size: clamp(2.3rem, 5.4vw, 4rem); line-height: 1.04; letter-spacing: -.035em; }
+h2 { font-weight: 800; font-size: clamp(1.75rem, 3.4vw, 2.5rem); line-height: 1.1; }
+h3 { font-weight: 600; font-size: 1.2rem; line-height: 1.25; }
+.lede { color: var(--muted); font-size: 1.08rem; max-width: 62ch; margin: .9rem 0 0; }
+.sec-head { margin-bottom: 2.2rem; }
+
+/* swatches */
+.sw { background: var(--sw); color: var(--on, #fff); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--fg) 22%, transparent); }
+.sw.num { display: grid; place-items: center; font: 800 1.15rem/1 var(--display); border-radius: 8px; }
+
+/* hero */
+.hero-grid { display: grid; grid-template-columns: 1fr 1.05fr; gap: clamp(1.6rem, 4vw, 3.5rem); align-items: center; }
+.hero-grid > * { min-width: 0; }
+.hero .lede { font-size: 1.15rem; margin-top: 1.2rem; }
+.cta { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 1.8rem; }
+.price-line { margin: 1rem 0 0; color: var(--muted); font-size: .95rem; }
+.keychips { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-top: 1.8rem; padding-top: 1.4rem; border-top: 1px solid var(--line); }
+.keychips .sw { width: 2.9rem; height: 2.9rem; }
+.keychips span.t { color: var(--muted); font-size: .9rem; margin-left: .3rem; }
+.photo { margin: 0; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: var(--alt); }
+.photo img { width: 100%; }
+@media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; } }
+
+/* trust strip */
+.trust { padding-block: 0; border-block: 1px solid var(--line); }
+.trust .grid { display: grid; grid-template-columns: repeat(4, 1fr); }
+.trust .cell { padding: 1.4rem 1.2rem 1.4rem 0; }
+.trust .cell + .cell { padding-left: 1.4rem; border-left: 1px solid var(--line); }
+.trust b { display: block; font: 800 1.15rem/1.25 var(--display); letter-spacing: -.01em; }
+.trust span { color: var(--muted); font-size: .92rem; }
+@media (max-width: 860px) {
+  .trust .grid { grid-template-columns: 1fr 1fr; }
+  .trust .cell, .trust .cell + .cell { padding: 1.1rem 1rem; border-left: 0; }
+  .trust .cell:nth-child(even) { border-left: 1px solid var(--line); }
+  .trust .cell:nth-child(n+3) { border-top: 1px solid var(--line); }
+}
+
+/* how it works */
+.how { display: grid; grid-template-columns: 1.25fr .75fr; gap: clamp(1.5rem, 4vw, 3rem); align-items: center; }
+.how > * { min-width: 0; }
+.how .photo { background: #fff; }
+.layers { list-style: none; margin: 0; padding: 0; counter-reset: l; }
+.layers li { display: grid; grid-template-columns: 2.2rem 1fr; gap: .9rem; padding: 1.05rem 0; border-top: 1px solid var(--line); }
+.layers li:last-child { border-bottom: 1px solid var(--line); }
+.layers .n { width: 2rem; height: 2rem; border-radius: 50%; background: var(--fg); color: var(--bg); display: grid; place-items: center; font: 500 .85rem/1 var(--mono); }
+.layers b { display: block; font: 600 1.08rem/1.3 var(--display); }
+.layers span.d { display: block; color: var(--muted); margin-top: .15rem; font-size: .96rem; }
+@media (max-width: 900px) { .how { grid-template-columns: 1fr; } }
+
+/* reader */
+.picks { display: grid; grid-template-columns: repeat(4, 1fr); gap: .8rem; margin-bottom: 1.2rem; }
+.pick { display: grid; gap: .5rem; text-align: left; padding: .75rem; border: 2px solid var(--line); background: var(--surface); border-radius: 10px; cursor: pointer; color: inherit; font: inherit; min-width: 0; }
+.pick .sw { height: 4.2rem; border-radius: 8px; font-size: 2rem; }
+.pick:hover { border-color: var(--muted); }
+.pick[aria-pressed="true"] { border-color: var(--fg); box-shadow: 0 0 0 1px var(--fg); }
+.pick b { font-weight: 600; }
+.pick small { color: var(--muted); font-size: .85rem; }
+.read-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 1.2rem; align-items: start; }
+.read-grid > * { min-width: 0; }
+.result { --sel: var(--c-green); background: color-mix(in srgb, var(--sel) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--sel) 45%, var(--line)); border-radius: 12px; padding: clamp(1.1rem, 3vw, 1.7rem); }
+.r-head { display: flex; gap: 1rem; align-items: center; }
+.r-head .sw { width: 4.6rem; height: 4.6rem; border-radius: 12px; flex: none; font-size: 2rem; }
+.r-head h3 { font-size: clamp(1.5rem, 3.2vw, 2rem); font-weight: 800; }
+.r-head p { margin: .1rem 0 0; color: var(--muted); }
+.read-out { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; margin: 1.3rem 0; }
+.read-out div { background: var(--surface); border-radius: 8px; padding: .85rem .95rem; border: 1px solid var(--line); min-width: 0; }
+.read-out .k { font: 500 .7rem/1.2 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); display: block; }
+.read-out .v { font: 800 clamp(1.3rem, 2.6vw, 1.7rem)/1.15 var(--display); margin-top: .5rem; font-variant-numeric: tabular-nums; }
+.result p.mean { margin: 0 0 1.2rem; font-size: 1.04rem; }
+.result h4 { margin: 0 0 .5rem; font: 500 .75rem/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.food-opts { list-style: none; margin: 0 0 1.1rem; padding: 0; }
+.food-opts > li { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .3rem 1rem; padding: .6rem 0; border-top: 1px solid color-mix(in srgb, var(--fg) 14%, transparent); }
+.fo-name { min-width: 0; }
+.fo-name .more { display: block; }
+.food-opts .mono { white-space: nowrap; color: var(--muted); font-size: .9rem; }
+.note { margin: 0; font-size: .95rem; color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: clamp(1.1rem, 3vw, 1.5rem); }
+.card h3 { margin-bottom: .3rem; }
+.tag-ex { font: 500 .72rem/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.trow { display: grid; grid-template-columns: 2.4rem 1fr auto; gap: .8rem; align-items: center; padding: .6rem 0; border-top: 1px solid var(--line); }
+.trow .sw { width: 2.4rem; height: 2.4rem; font-size: 1rem; }
+.trow small { color: var(--muted); font-family: var(--mono); font-size: .78rem; display: block; }
+.stepper { display: inline-flex; align-items: center; gap: .5rem; }
+.stepper output { min-width: 1.6rem; text-align: center; font: 500 1.05rem var(--mono); }
+.total { margin-top: .6rem; padding-top: 1rem; border-top: 1.5px solid var(--fg); }
+.total .big { font: 800 clamp(1.7rem, 4vw, 2.2rem)/1.1 var(--display); font-variant-numeric: tabular-nums; margin: .3rem 0 .8rem; }
+.meter { position: relative; height: 12px; border-radius: 6px; background: color-mix(in srgb, var(--fg) 10%, transparent); overflow: hidden; }
+.meter i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--fg); border-radius: 6px; transition: width .3s; }
+.ticks { display: flex; justify-content: space-between; margin-top: .35rem; font: 400 .72rem var(--mono); color: var(--muted); }
+@media (max-width: 900px) { .read-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .picks { grid-template-columns: repeat(2, 1fr); } .read-out { grid-template-columns: 1fr; } }
+
+/* app */
+.app { display: grid; grid-template-columns: .95fr 1.05fr; gap: clamp(1.5rem, 4vw, 3.5rem); align-items: center; }
+.app > * { min-width: 0; }
+.steps { list-style: none; margin: 1.6rem 0 0; padding: 0; }
+.steps li { display: grid; grid-template-columns: 2.2rem 1fr; gap: .9rem; padding: .95rem 0; border-top: 1px solid var(--line); }
+.steps li:last-child { border-bottom: 1px solid var(--line); }
+.steps .n { width: 2rem; height: 2rem; border-radius: 50%; background: var(--fg); color: var(--bg); display: grid; place-items: center; font: 500 .85rem/1 var(--mono); }
+.steps b { display: block; font: 600 1.05rem/1.3 var(--display); }
+.steps span.d { display: block; color: var(--muted); font-size: .96rem; margin-top: .1rem; }
+@media (max-width: 860px) { .app { grid-template-columns: 1fr; } }
+
+/* foods */
+.filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+.chip { padding: .45rem .95rem; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--fg); font: 500 .92rem var(--body); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.foods { list-style: none; margin: 0; padding: 0; }
+.food { display: grid; grid-template-columns: minmax(10rem, 1.1fr) 1.6fr 6.5rem; gap: .4rem 1.2rem; align-items: center; padding: .9rem 0; border-top: 1px solid var(--line); }
+.food b { font-weight: 600; }
+.food small { display: block; color: var(--muted); font-size: .85rem; }
+.food .bar-t { height: 12px; border-radius: 6px; background: color-mix(in srgb, var(--fg) 8%, transparent); }
+.food .bar-t i { display: block; height: 100%; border-radius: 6px; background: var(--fg); }
+.food .bar-t i.plant { opacity: .55; }
+.food .amt { text-align: right; font-size: .95rem; }
+.tips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4rem; margin-top: 2.4rem; }
+.tips > div { border-top: 2px solid var(--fg); padding-top: .9rem; }
+.tips p { margin: .4rem 0 0; color: var(--muted); }
+.more { margin-top: .45rem; padding: .3rem .7rem; border-radius: 6px; border: 1.5px solid var(--line); background: var(--surface); color: var(--fg); font: 500 .85rem/1.3 var(--body); cursor: pointer; }
+.more:hover { border-color: var(--fg); }
+.more::after { content: " +"; }
+.more[aria-expanded="true"]::after { content: " \2212"; }
+.food-opts .gitems, .food .gitems { flex: 1 0 100%; grid-column: 1 / -1; list-style: none; margin: .5rem 0 .2rem; padding: .3rem .9rem; background: color-mix(in srgb, var(--fg) 6%, var(--surface)); border-radius: 8px; }
+.gitems li { display: flex; justify-content: space-between; gap: 1rem; padding: .5rem 0; border-top: 1px solid var(--line); }
+.gitems li:first-child { border-top: 0; }
+.gitems small { display: inline; color: var(--muted); font-size: .85rem; }
+@media (max-width: 760px) { .food { grid-template-columns: 1fr auto; } .food .bar-t { grid-column: 1 / -1; order: 3; } .food .gitems { order: 4; } .tips { grid-template-columns: 1fr; } }
+
+/* shop */
+.shop { display: grid; grid-template-columns: 1.35fr .65fr; gap: 1.2rem; align-items: start; }
+.shop > * { min-width: 0; }
+.packs { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+.pack { display: flex; flex-direction: column; gap: .5rem; position: relative; }
+.pack .shot { height: 13.5rem; display: grid; place-items: center; background: var(--alt); border-radius: 8px; margin-bottom: .6rem; }
+.pack .shot img { max-height: 12.5rem; width: auto; border-radius: 6px; }
+.pack .count { font: 800 clamp(1.7rem, 3.4vw, 2.2rem)/1 var(--display); letter-spacing: -.03em; }
+.pack .count span { font-size: 1rem; font-weight: 600; letter-spacing: 0; color: var(--muted); }
+.pack .price { font: 800 1.6rem/1 var(--display); }
+.pack .per { color: var(--muted); font-size: .93rem; margin: 0; }
+.badge-best { position: absolute; top: 1.7rem; left: 1.7rem; background: var(--brand); color: var(--on-brand); font: 500 .68rem/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: .4rem .55rem; border-radius: 4px; }
+.pack .qty { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 1rem; }
+.lines { list-style: none; margin: .6rem 0 0; padding: 0; }
+.lines li { display: flex; justify-content: space-between; gap: 1rem; padding: .55rem 0; border-top: 1px solid var(--line); }
+.sum { display: flex; justify-content: space-between; gap: 1rem; font: 800 1.4rem/1 var(--display); padding: 1rem 0 .4rem; border-top: 1.5px solid var(--fg); margin-top: .4rem; }
+.shop .btn { width: 100%; margin-top: .8rem; }
+.status { min-height: 1.4rem; margin: .7rem 0 0; font-size: .92rem; color: var(--muted); }
+.or { margin: 1.2rem 0 0; font-size: .95rem; color: var(--muted); }
+@media (max-width: 900px) { .shop { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .packs { grid-template-columns: 1fr; } }
+
+/* map */
+.where { display: grid; grid-template-columns: 1.15fr .85fr; gap: 1.2rem; align-items: start; }
+.where > * { min-width: 0; }
+.map-card { padding: 0; overflow: hidden; margin: 0; }
+.map-card svg { display: block; width: 100%; height: auto; }
+.map-card figcaption { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .7rem 1rem; padding: .9rem 1.1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .88rem; }
+.map-card figcaption span { flex: 1 1 16rem; }
+.pin { cursor: pointer; }
+.pin circle.dot { fill: var(--fg); stroke: var(--bg); stroke-width: 3; transition: r .2s; }
+.pin circle.halo { fill: var(--fg); opacity: 0; transition: opacity .2s; }
+.pin text { fill: var(--bg); font: 500 13px var(--mono); text-anchor: middle; pointer-events: none; }
+.pin.on circle.halo { opacity: .22; }
+.pin.on circle.dot { r: 17px; }
+.road { fill: none; stroke: var(--map-road); stroke-linecap: round; }
+.you circle { fill: var(--bg); stroke: var(--fg); stroke-width: 3; }
+.you text { font: 600 12px var(--body); fill: var(--fg); }
+.find-form { display: grid; gap: .5rem; margin-bottom: 1rem; }
+.find-form label { font: 500 .75rem/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.find-form input { padding: .75rem .9rem; border-radius: 6px; border: 1.5px solid var(--line); background: var(--bg); color: var(--fg); font: 400 1rem var(--body); width: 100%; }
+.stores { list-style: none; margin: 1rem 0 0; padding: 0; }
+.store { display: grid; grid-template-columns: 2rem 1fr; gap: .8rem; width: 100%; text-align: left; background: transparent; border: 0; border-top: 1px solid var(--line); padding: .8rem .2rem; color: inherit; font: inherit; cursor: pointer; border-radius: 0; }
+.store:hover, .store[aria-pressed="true"] { background: var(--alt); }
+.store .n { width: 1.8rem; height: 1.8rem; border-radius: 50%; background: var(--fg); color: var(--bg); display: grid; place-items: center; font: 500 .8rem/1 var(--mono); }
+.store small { display: block; color: var(--muted); }
+@media (max-width: 900px) { .where { grid-template-columns: 1fr; } }
+
+/* faq */
+.faq { max-width: 860px; }
+details { border-top: 1px solid var(--line); }
+details:last-child { border-bottom: 1px solid var(--line); }
+summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 1rem; padding: 1.1rem 0; font: 600 1.12rem/1.3 var(--display); }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; font: 400 1.5rem/1 var(--mono); color: var(--muted); flex: none; }
+details[open] summary::after { content: "\2212"; }
+details p { margin: 0 0 1.2rem; color: var(--muted); max-width: 66ch; }
+
+/* footer */
+.foot { background: var(--fg); color: var(--bg); padding-block: 3rem 3.2rem; font-size: .92rem; }
+.foot .cols { display: grid; grid-template-columns: 1.4fr .8fr .8fr; gap: 2rem; }
+.foot .cols > * { min-width: 0; }
+.foot .logo { font-size: 1.4rem; display: inline-block; margin-bottom: .8rem; }
+.foot .logo .b1 { color: inherit; }
+.foot h4 { margin: 0 0 .7rem; font: 500 .72rem/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; opacity: .65; }
+.foot ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .45rem; }
+.foot a { text-decoration: none; opacity: .88; }
+.foot a:hover { opacity: 1; text-decoration: underline; }
+.foot p { margin: 0 0 .7rem; opacity: .8; max-width: 62ch; }
+.foot .legal { margin-top: 2rem; padding-top: 1.2rem; border-top: 1px solid color-mix(in srgb, var(--bg) 25%, transparent); font-size: .85rem; opacity: .75; }
+@media (max-width: 760px) { .foot .cols { grid-template-columns: 1fr 1fr; } .foot .cols > :first-child { grid-column: 1 / -1; } }
+</style>
+
+<div class="annc"><div class="wrap">Packs of 10 for $40 and packs of 25 for $75. Order online or <a href="#pharmacies">pick up at a pharmacy</a>.</div></div>
+
+<header class="site">
+  <div class="wrap bar">
+    <a class="logo" href="#top" aria-label="BleedLess home"><span class="b1">Bleed</span>Less</a>
+    <nav aria-label="Main">
+      <ul>
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#read">Color key</a></li>
+        <li><a href="#app">App</a></li>
+        <li><a href="#foods">Foods</a></li>
+        <li><a href="#shop">Shop</a></li>
+        <li><a href="#pharmacies">Pharmacies</a></li>
+        <li><a href="#faq">Questions</a></li>
+      </ul>
+    </nav>
+    <a class="btn brand sm" href="#shop">Shop packs</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="vhero" aria-label="BleedLess introduction video">
+    <div class="vframe">
+      <video id="introVideo" src="vid/bleedless-intro.mp4" poster="vid/poster.jpg" autoplay muted loop playsinline preload="auto" aria-label="BleedLess pad floating in a laboratory, introduction video"></video>
+      <div class="vctl">
+        <button class="vbtn" type="button" id="vPlay" aria-pressed="false">Pause</button>
+        <button class="vbtn" type="button" id="vSound" aria-pressed="false">Sound on</button>
+      </div>
+    </div>
+    <div class="vbar">
+      <div class="wrap vbar-in">
+        <div>
+          <p class="eyebrow">Period Health Monitoring System</p>
+          <h1>Period health monitoring, built into the pad.</h1>
+        </div>
+        <div class="vbar-r">
+          <p class="lede">A four-layer pad with a color strip that shows how much you lose, estimates the iron in it, and helps you plan what to eat.</p>
+          <div class="cta">
+            <a class="btn brand" href="#shop">Shop packs</a>
+            <a class="btn" href="#how">See how it works</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow">The BleedLess system</p>
+        <h2>Pad, strip and app, in one box.</h2>
+        <p class="lede">BleedLess is a four-layer pad with a microfluidic lateral flow strip. The strip changes color as blood reaches it, so you can see how much you lose, estimate the iron in it, and plan what to eat.</p>
+        <div class="cta">
+          <a class="btn brand" href="#shop">Shop packs</a>
+          <a class="btn" href="#read">See the color key</a>
+        </div>
+        <p class="price-line">10 count, $40. 25 count, $75.</p>
+        <div class="keychips" aria-label="Strip color key">
+          <span class="sw num" style="--sw:var(--c-blue);--on:var(--on-blue)">5</span>
+          <span class="sw num" style="--sw:var(--c-green);--on:var(--on-green)">10</span>
+          <span class="sw num" style="--sw:var(--c-red);--on:var(--on-red)">15</span>
+          <span class="sw num" style="--sw:var(--c-black);--on:var(--on-black)">20</span>
+          <span class="t">Strip color key, mL of blood on one pad</span>
+        </div>
+      </div>
+      <figure class="photo">
+        <img src="img/boxes.jpg" width="538" height="293" alt="BleedLess 10-count and 25-count boxes on a pharmacy counter beside a phone showing the strip color chart">
+      </figure>
+    </div>
+  </section>
+
+  <section class="trust">
+    <div class="wrap grid">
+      <div class="cell"><b>4-layer design</b><span>Absorbent, concealment, strip and clear viewing layers.</span></div>
+      <div class="cell"><b>Microfluidic strip</b><span>Lateral flow moves blood by capillary action.</span></div>
+      <div class="cell"><b>5, 10, 15, 20 mL</b><span>Blue, green, red and black strip colors.</span></div>
+      <div class="cell"><b>Iron estimate</b><span>Each color maps to iron lost and foods to replace it.</span></div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Pad design</p>
+        <h2>Four layers, one clear reading</h2>
+        <p class="lede">Blood passes through the absorbent and concealment layers to the strip. Capillary action moves it along the strip, and the color shows through the clear viewing layer.</p>
+      </div>
+      <div class="how">
+        <figure class="photo" style="margin:0">
+          <img src="img/layers.png" width="937" height="510" alt="BleedLess four-layer pad design: absorbent layer, concealment layer, microfluidic lateral flow strip and clear viewing layer, with capillary action moving blood along the strip">
+        </figure>
+        <ol class="layers">
+          <li><span class="n">1</span><span><b>Absorbent layer</b><span class="d">Draws blood into the pad and away from the surface.</span></span></li>
+          <li><span class="n">2</span><span><b>Concealment layer</b><span class="d">Hides the blood from view while letting it pass through to the strip.</span></span></li>
+          <li><span class="n">3</span><span><b>Microfluidic lateral flow strip</b><span class="d">A thin inlet, too thin to feel, feeds the strip. Capillary action moves blood along it and the strip changes color.</span></span></li>
+          <li><span class="n">4</span><span><b>Clear viewing layer</b><span class="d">A clear window shows the strip color so you can match it to 5, 10, 15 or 20 mL.</span></span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section id="read" class="alt">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Color key</p>
+        <h2>Your color, your iron, your next meal</h2>
+        <p class="lede">Pick the color you see in the window. Blue, green, red and black stand for 5, 10, 15 and 20 mL of blood on one pad. Blood carries about 0.5 mg of iron in every mL, so each color maps to an iron amount.</p>
+      </div>
+      <div class="picks" id="picks" role="group" aria-label="Choose the strip color"></div>
+      <div class="read-grid">
+        <div class="result" id="result" aria-live="polite">
+          <div class="r-head">
+            <span class="sw num" id="rSw" aria-hidden="true"></span>
+            <div><h3 id="rName"></h3><p id="rTag"></p></div>
+          </div>
+          <div class="read-out">
+            <div><span class="k">Blood on this pad</span><div class="v" id="rMl"></div></div>
+            <div><span class="k">Iron lost</span><div class="v" id="rFe"></div></div>
+            <div><span class="k">Iron outlook</span><div class="v" id="rOut"></div></div>
+          </div>
+          <p class="mean" id="rMean"></p>
+          <h4>To replace it, try one of these</h4>
+          <ul class="food-opts" id="rFoods"></ul>
+          <p class="note" id="rNote"></p>
+        </div>
+        <div class="card">
+          <span class="tag-ex">Example day, change the counts</span>
+          <h3>Add up your day</h3>
+          <p class="note" style="margin-bottom:.6rem">How many pads of each color did you use today?</p>
+          <div id="tallyRows"></div>
+          <div class="total">
+            <span class="tag-ex">Iron lost today</span>
+            <div class="big" id="tTotal"></div>
+            <div class="meter" aria-hidden="true"><i id="mLo"></i></div>
+            <div class="ticks" aria-hidden="true"><span>0</span><span>10</span><span>20</span><span>30</span><span>40 mg</span></div>
+            <p class="note" id="tNote" style="margin-top:.8rem"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="app">
+    <div class="wrap app">
+      <figure class="photo" style="margin:0">
+        <img src="img/app-in-hand.jpg" width="538" height="295" alt="A person holding a phone that shows the BleedLess period blood test results screen">
+      </figure>
+      <div>
+        <p class="eyebrow">BleedLess app</p>
+        <h2>Log your strip in the app</h2>
+        <p class="lede">Match the color and the app shows your estimated blood loss, status, iron estimate and recommendations.</p>
+        <ol class="steps">
+          <li><span class="n">1</span><span><b>Check the strip</b><span class="d">Look through the clear viewing layer after about a minute.</span></span></li>
+          <li><span class="n">2</span><span><b>Select the closest color</b><span class="d">Compare your strip with the chart in the app and choose the match.</span></span></li>
+          <li><span class="n">3</span><span><b>Read your results</b><span class="d">See estimated blood loss, status, an iron level estimate and recommendations.</span></span></li>
+          <li><span class="n">4</span><span><b>Follow your cycle</b><span class="d">Results sit alongside your cycle day, so you can follow your pattern over time.</span></span></li>
+        </ol>
+        <p class="note" style="margin-top:1rem">No phone handy? The color key above gives the same color-to-iron estimates.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="foods" class="alt">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Iron-rich foods</p>
+        <h2>Foods that put iron back</h2>
+        <p class="lede">Iron per serving, from highest to lowest. Animal foods carry heme iron, which the body absorbs more easily. Plant foods carry non-heme iron, so pair them with vitamin C. Open a group to see the foods in it.</p>
+      </div>
+      <div class="filters" id="filters" role="group" aria-label="Filter foods">
+        <button class="chip" type="button" data-f="all" aria-pressed="true">All foods</button>
+        <button class="chip" type="button" data-f="animal" aria-pressed="false">Animal</button>
+        <button class="chip" type="button" data-f="plant" aria-pressed="false">Plant</button>
+      </div>
+      <ul class="foods" id="foodList"></ul>
+      <div class="tips">
+        <div><h3>Add vitamin C</h3><p>Squeeze lemon over lentils, add peppers to beans, or eat an orange with your cereal. Vitamin C helps the body take up plant iron.</p></div>
+        <div><h3>Space out tea and coffee</h3><p>Tea and coffee reduce iron absorption when drunk with a meal. Have them an hour or two before or after.</p></div>
+        <div><h3>Ask before supplements</h3><p>Iron pills can cause side effects, and too much iron is harmful. If your strips are often red or black, talk to a doctor first.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="shop">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Buy online</p>
+        <h2>Choose your pack</h2>
+        <p class="lede">The BleedLess Period Health Monitoring System in two pack sizes. Prefer to buy in person? Find a pharmacy below.</p>
+      </div>
+      <div class="shop">
+        <div class="packs">
+          <div class="card pack">
+            <div class="shot"><img src="img/box10.jpg" width="155" height="172" alt="BleedLess 10 count box"></div>
+            <div class="count">10 <span>count</span></div>
+            <div class="price">$40</div>
+            <p class="per">$4.00 per pad</p>
+            <div class="qty">
+              <span>Packs</span>
+              <div class="stepper"><button class="step" type="button" data-pack="p10" data-d="-1" aria-label="Remove one 10 count pack">&minus;</button><output id="q-p10" class="mono">1</output><button class="step" type="button" data-pack="p10" data-d="1" aria-label="Add one 10 count pack">+</button></div>
+            </div>
+          </div>
+          <div class="card pack">
+            <span class="badge-best">Best value</span>
+            <div class="shot"><img src="img/box25.jpg" width="230" height="218" alt="BleedLess 25 count box"></div>
+            <div class="count">25 <span>count</span></div>
+            <div class="price">$75</div>
+            <p class="per">$3.00 per pad, $25 less than buying 25 at the 10 count price</p>
+            <div class="qty">
+              <span>Packs</span>
+              <div class="stepper"><button class="step" type="button" data-pack="p25" data-d="-1" aria-label="Remove one 25 count pack">&minus;</button><output id="q-p25" class="mono">0</output><button class="step" type="button" data-pack="p25" data-d="1" aria-label="Add one 25 count pack">+</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Your order</h3>
+          <ul class="lines" id="lines"></ul>
+          <div class="sum"><span>Subtotal</span><span id="subtotal">$0</span></div>
+          <p class="note">Shipping and tax are added at checkout.</p>
+          <button class="btn primary" type="button" id="checkout">Go to checkout</button>
+          <p class="status" id="status" role="status"></p>
+          <p class="or">Rather pick up in person? <a href="#pharmacies">Find a pharmacy</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pharmacies" class="alt">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Buy in person</p>
+        <h2>Find a pharmacy near you</h2>
+        <p class="lede">Pick up BleedLess at a partner pharmacy, or order online above. Enter your ZIP code or city to search pharmacies near you.</p>
+      </div>
+      <div class="where">
+        <figure class="card map-card">
+          <svg id="map" viewBox="0 0 640 440" role="group" aria-label="Sample map of partner pharmacy locations">
+            <rect width="640" height="440" fill="var(--map-land)"/>
+            <path d="M0 330C120 300 220 370 340 345S540 300 640 335V400C540 365 440 405 340 397S120 355 0 390Z" fill="var(--map-water)"/>
+            <rect x="420" y="46" width="160" height="112" rx="14" fill="var(--map-park)"/>
+            <path class="road" d="M0 92L640 262" stroke-width="9"/>
+            <path class="road" d="M0 200H640" stroke-width="16"/>
+            <path class="road" d="M300 0V440" stroke-width="16"/>
+            <path class="road" d="M120 0V300" stroke-width="7"/>
+            <path class="road" d="M470 160V320" stroke-width="7"/>
+            <path class="road" d="M0 285H300" stroke-width="7"/>
+            <g class="you"><circle cx="236" cy="220" r="9"/><text x="236" y="248" text-anchor="middle">You</text></g>
+            <g id="pins"></g>
+          </svg>
+          <figcaption><span>Preview with sample pins. The live map, with real pharmacies, hours and directions, opens in Google Maps.</span><a class="btn primary sm" id="mapsLink2" href="https://www.google.com/maps/search/pharmacy+near+me" target="_blank" rel="noopener">Open live map in Google Maps</a></figcaption>
+        </figure>
+        <div class="card">
+          <form class="find-form" id="findForm">
+            <label for="zip">ZIP code or city</label>
+            <input id="zip" type="text" inputmode="text" autocomplete="postal-code" placeholder="Enter ZIP code or city">
+            <a class="btn primary" id="mapsLink" href="https://www.google.com/maps/search/pharmacy+near+me" target="_blank" rel="noopener">Search pharmacies on Google Maps</a>
+          </form>
+          <span class="tag-ex">Sample partner pharmacies</span>
+          <ul class="stores" id="stores"></ul>
+          <p class="note" style="margin-top:.8rem">Stock varies by store. Call ahead to check availability.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Questions</p>
+        <h2>Questions people ask</h2>
+      </div>
+      <div class="faq">
+        <details open>
+          <summary>How does the strip know how much blood there is?</summary>
+          <p>Blood passes through the absorbent layer and the concealment layer to the microfluidic lateral flow strip. Capillary action moves it along the strip, and the strip changes color to show the loss level. You read the color through the clear viewing layer.</p>
+        </details>
+        <details>
+          <summary>What do the colors and numbers mean?</summary>
+          <p>Blue 5, green 10, red 15 and black 20 are the amount of blood on one pad, in mL. Blue is very light loss, green is light, red is moderate and black is heavy.</p>
+        </details>
+        <details>
+          <summary>How long until the color shows?</summary>
+          <p>The color settles in about a minute after blood reaches the strip. Check the clear window each time you change your pad.</p>
+        </details>
+        <details>
+          <summary>How is the iron amount worked out?</summary>
+          <p>Blood carries about 0.5 mg of iron in every mL. So blue is about 2.5 mg, green 5 mg, red 7.5 mg and black 10 mg of iron on one pad. These are estimates, not a lab result.</p>
+        </details>
+        <details>
+          <summary>Do I need the app?</summary>
+          <p>The app makes it easier. You check the strip color, select the closest match, and see your estimated blood loss, status, iron estimate and recommendations, along with your cycle day. You can also read the color key on this page.</p>
+        </details>
+        <details>
+          <summary>Will I feel the strip?</summary>
+          <p>No. The strip sits in its own layer under the concealment layer, and the thin inlet that feeds it is too thin to feel.</p>
+        </details>
+        <details>
+          <summary>What does a black strip mean?</summary>
+          <p>Black means the pad holds about 20 mL, which is about 10 mg of iron. Many people have a heavy day. If you soak through a pad every hour or two for several hours, or you feel dizzy, faint or short of breath, get medical care. If black or red shows up often, ask a doctor about a ferritin and hemoglobin blood test.</p>
+        </details>
+        <details>
+          <summary>Does BleedLess diagnose iron deficiency?</summary>
+          <p>No. BleedLess estimates the iron you lose through blood on your pads. Only a blood test can confirm low iron.</p>
+        </details>
+        <details>
+          <summary>Can food replace the iron I lose?</summary>
+          <p>For many people, regular meals with iron-rich foods help. The suggestions here are ordinary foods with their iron per serving. If your strips are often red or black, ask a doctor before taking iron supplements.</p>
+        </details>
+        <details>
+          <summary>Should I buy online or at a pharmacy?</summary>
+          <p>Both work. Online you can order a 10 count for $40 or a 25 count for $75. If you want a pad today, use the map to find a pharmacy near you and call ahead to check stock.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <a class="logo" href="#top"><span class="b1">Bleed</span>Less</a>
+        <p>Period Health Monitoring System. Tracks menstrual iron levels and normality.</p>
+        <p>BleedLess gives estimates and does not diagnose iron deficiency or any other condition. If you are worried about your bleeding or your iron, talk to a doctor.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#read">Color key</a></li>
+          <li><a href="#app">App</a></li>
+          <li><a href="#foods">Foods</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Buy</h4>
+        <ul>
+          <li><a href="#shop">Shop online</a></li>
+          <li><a href="#pharmacies">Find a pharmacy</a></li>
+          <li><a href="#faq">Questions</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="legal">Iron per serving comes from the <a href="https://ods.od.nih.gov/factsheets/Iron-HealthProfessional/" target="_blank" rel="noopener" style="text-decoration:underline">NIH Office of Dietary Supplements</a> and USDA food data. Values vary by brand and preparation, so check labels. &copy; 2026 BleedLess.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var ORDER = ['blue', 'green', 'red', 'black'];
+  var C = {
+    blue: { name: 'Blue', num: 5, tag: 'Very light loss', ml: '5 mL', fe: '2.5 mg', out: 'Normal', iron: 2.5,
+      mean: 'A very light pad. It holds little blood, so the iron lost is small.',
+      foods: [{ t: '1 oz pumpkin seeds', mg: '≈ 2.5 mg' }, { t: '½ cup boiled chickpeas', mg: '≈ 2.4 mg' }, { t: '3 oz braised beef', mg: '≈ 2.4 mg' }],
+      note: 'Your iron outlook is normal. Keep iron-rich foods in your regular meals.' },
+    green: { name: 'Green', num: 10, tag: 'Light loss', ml: '10 mL', fe: '5 mg', out: 'Good', iron: 5,
+      mean: 'A light pad. The iron lost is low and your iron outlook is good.',
+      foods: [{ t: 'Lentil and spinach bowl', mg: '≈ 6.5 mg', parts: [{ t: '½ cup boiled lentils', mg: '3.3 mg' }, { t: '½ cup boiled spinach', mg: '3.2 mg' }] }, { t: 'Tofu and seeds plate', mg: '≈ 5.9 mg', parts: [{ t: '½ cup firm tofu', mg: '3.4 mg' }, { t: '1 oz pumpkin seeds', mg: '2.5 mg' }] }, { t: '3 oz pan-fried beef liver', mg: '≈ 5.2 mg' }],
+      note: 'One iron-rich food today keeps you on track.' },
+    red: { name: 'Red', num: 15, tag: 'Moderate loss', ml: '15 mL', fe: '7.5 mg', out: 'Monitor', iron: 7.5,
+      mean: 'A moderate pad. Keep an eye on your iron over the next few days.',
+      foods: [{ t: '1 cup canned white beans', mg: '≈ 8 mg' }, { t: '3 oz cooked oysters', mg: '≈ 7.8 mg' }, { t: 'Lentil, spinach and beef plate', mg: '≈ 8.9 mg', parts: [{ t: '½ cup boiled lentils', mg: '3.3 mg' }, { t: '½ cup boiled spinach', mg: '3.2 mg' }, { t: '3 oz braised beef', mg: '2.4 mg' }] }],
+      note: 'Add iron-rich foods to two meals today and pair plant foods with vitamin C.' },
+    black: { name: 'Black', num: 20, tag: 'Heavy loss', ml: '20 mL', fe: '10 mg', out: 'Check', iron: 10,
+      mean: 'A heavy pad. It holds the most blood of the four colors, so check your iron.',
+      foods: [{ t: 'Liver, lentil and spinach plate', mg: '≈ 11.7 mg', parts: [{ t: '3 oz pan-fried beef liver', mg: '5.2 mg' }, { t: '½ cup boiled lentils', mg: '3.3 mg' }, { t: '½ cup boiled spinach', mg: '3.2 mg' }] }, { t: 'Oysters with white beans', mg: '≈ 15.8 mg', parts: [{ t: '3 oz cooked oysters', mg: '7.8 mg' }, { t: '1 cup canned white beans', mg: '8 mg' }] }, { t: '1 serving fortified cereal (100% Daily Value on the label)', mg: 'up to 18 mg' }],
+      note: 'Note how long this pad took to fill. If you fill a pad every hour or two for several hours, get medical care. Ask a doctor about a ferritin test.' }
+  };
+  var FOODS = [
+    { n: 'Fortified breakfast cereal', s: '1 serving, 100% Daily Value of iron on the label', mg: 18, k: 'plant' },
+    { n: 'Beans and lentils', k: 'plant', items: [
+      { n: 'White beans, canned', s: '1 cup', mg: 8 },
+      { n: 'Lentils, boiled', s: '½ cup', mg: 3.3 },
+      { n: 'Chickpeas, boiled', s: '½ cup', mg: 2.4 },
+      { n: 'Kidney beans, canned', s: '½ cup', mg: 2 }] },
+    { n: 'Fish and shellfish', k: 'animal', items: [
+      { n: 'Oysters, cooked', s: '3 oz', mg: 7.8 },
+      { n: 'Sardines, canned in oil', s: '3 oz', mg: 2.5 }] },
+    { n: 'Dark chocolate, 45–69% cacao', s: '3 oz', mg: 6.8, k: 'plant' },
+    { n: 'Beef and liver', k: 'animal', items: [
+      { n: 'Beef liver, pan fried', s: '3 oz', mg: 5.2 },
+      { n: 'Beef, braised', s: '3 oz', mg: 2.4 }] },
+    { n: 'Tofu, firm', s: '½ cup', mg: 3.4, k: 'plant' },
+    { n: 'Greens and vegetables', k: 'plant', items: [
+      { n: 'Spinach, boiled', s: '½ cup', mg: 3.2 },
+      { n: 'Potato, baked with skin', s: '1 medium', mg: 1.9 },
+      { n: 'Tomatoes, stewed, canned', s: '½ cup', mg: 1.7 }] },
+    { n: 'Nuts and seeds', k: 'plant', items: [
+      { n: 'Pumpkin seeds', s: '1 oz', mg: 2.5 },
+      { n: 'Cashews', s: '1 oz', mg: 1.7 }] }
+  ];
+  var PINS = [
+    { x: 190, y: 140, n: 'Partner pharmacy 1', a: 'Downtown' },
+    { x: 380, y: 240, n: 'Partner pharmacy 2', a: 'Midtown' },
+    { x: 100, y: 255, n: 'Partner pharmacy 3', a: 'Westside' },
+    { x: 540, y: 215, n: 'Partner pharmacy 4', a: 'Eastgate' },
+    { x: 470, y: 320, n: 'Partner pharmacy 5', a: 'Riverside' }
+  ];
+  var PACKS = { p10: { n: 10, price: 40 }, p25: { n: 25, price: 75 } };
+
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function f(n) { return Number.isInteger(n) ? String(n) : n.toFixed(1); }
+  function money(n) { return '$' + n; }
+  function swStyle(k) { return '--sw:var(--c-' + k + ');--on:var(--on-' + k + ')'; }
+
+  var sel = 'green';
+  var tally = { blue: 1, green: 2, red: 1, black: 0 };
+  var qty = { p10: 1, p25: 0 };
+  var activePin = 0;
+
+  /* color picks */
+  $('#picks').innerHTML = ORDER.map(function (k) {
+    var d = C[k];
+    return '<button class="pick" type="button" data-color="' + k + '" aria-pressed="false"><span class="sw num" style="' + swStyle(k) + '">' + d.num + '</span><b>' + d.name + ', ' + d.ml + '</b><small>' + d.tag + '</small></button>';
+  }).join('');
+  $$('.pick').forEach(function (b) { b.addEventListener('click', function () { setColor(b.dataset.color); }); });
+
+  function moreBtn(label, name, isOpen) {
+    return '<button class="more" type="button" aria-expanded="' + (isOpen ? 'true' : 'false') + '"' + (name ? ' data-g="' + name + '"' : '') + '><span class="lbl">' + (isOpen ? 'Hide' : label) + '</span></button>';
+  }
+
+  function setColor(k) {
+    sel = k;
+    var d = C[k];
+    $$('.pick').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.color === k ? 'true' : 'false'); });
+    $('#result').style.setProperty('--sel', 'var(--c-' + k + ')');
+    var sw = $('#rSw');
+    sw.setAttribute('style', swStyle(k));
+    sw.textContent = d.num;
+    $('#rName').textContent = d.name + ' strip';
+    $('#rTag').textContent = d.tag;
+    $('#rMl').textContent = d.ml;
+    $('#rFe').textContent = d.fe;
+    $('#rOut').textContent = d.out;
+    $('#rMean').textContent = d.mean;
+    $('#rNote').textContent = d.note;
+    $('#rFoods').innerHTML = d.foods.map(function (x) {
+      var parts = x.parts ? '<ul class="gitems" hidden>' + x.parts.map(function (q) { return '<li><span>' + q.t + '</span><span class="mono">' + q.mg + '</span></li>'; }).join('') + '</ul>' : '';
+      return '<li><span class="fo-name">' + x.t + (x.parts ? moreBtn('See what’s in it', '', false) : '') + '</span><span class="mono">' + x.mg + '</span>' + parts + '</li>';
+    }).join('');
+  }
+
+  /* tally */
+  $('#tallyRows').innerHTML = ORDER.map(function (k) {
+    return '<div class="trow"><span class="sw num" style="' + swStyle(k) + '">' + C[k].num + '</span><span>' + C[k].name + '<small>' + C[k].ml + ' · ' + C[k].fe + ' iron</small></span><div class="stepper"><button class="step" type="button" data-t="' + k + '" data-d="-1" aria-label="Fewer ' + k + ' pads">&minus;</button><output id="t-' + k + '">0</output><button class="step" type="button" data-t="' + k + '" data-d="1" aria-label="More ' + k + ' pads">+</button></div></div>';
+  }).join('');
+  $$('[data-t]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var k = b.dataset.t;
+      tally[k] = Math.max(0, Math.min(20, tally[k] + Number(b.dataset.d)));
+      renderTally();
+    });
+  });
+  function renderTally() {
+    var total = 0;
+    ORDER.forEach(function (k) {
+      $('#t-' + k).textContent = tally[k];
+      total += tally[k] * C[k].iron;
+    });
+    $('#tTotal').textContent = f(total) + ' mg';
+    $('#mLo').style.width = Math.min(100, total / 40 * 100) + '%';
+    var msg;
+    if (total === 0) { msg = 'Add your pads to see the iron lost today.'; }
+    else if (total >= 18) { msg = 'That is about a full day of the 18 mg most women aged 19 to 50 are advised to get from food. Add iron-rich foods to more than one meal. A typical whole period loses roughly 15 to 20 mg.'; }
+    else { msg = 'That is under the 18 mg a day most women aged 19 to 50 are advised to get from food. A typical whole period loses roughly 15 to 20 mg.'; }
+    $('#tNote').textContent = msg;
+  }
+
+  /* foods */
+  var filter = 'all';
+  var openG = {};
+  function range(x) {
+    if (!x.items) { return [x.mg, x.mg]; }
+    var a = x.items.map(function (i) { return i.mg; });
+    return [Math.min.apply(null, a), Math.max.apply(null, a)];
+  }
+  function renderFoods() {
+    $('#foodList').innerHTML = FOODS.filter(function (x) { return filter === 'all' || x.k === filter; }).map(function (x) {
+      var r = range(x), grp = !!x.items, isOpen = !!openG[x.n];
+      var amt = grp ? f(r[0]) + '–' + f(r[1]) + ' mg' : (x.mg === 18 ? 'up to 18 mg' : f(x.mg) + ' mg');
+      var sub = grp ? x.items.length + ' foods in this group' : x.s;
+      var detail = grp ? '<ul class="gitems"' + (isOpen ? '' : ' hidden') + '>' + x.items.map(function (i) { return '<li><span>' + i.n + ' <small>' + i.s + '</small></span><span class="mono">' + f(i.mg) + ' mg</span></li>'; }).join('') + '</ul>' : '';
+      return '<li class="food"><div><b>' + x.n + '</b><small>' + sub + '</small>' + (grp ? moreBtn('See what’s in it', x.n, isOpen) : '') + '</div><div class="bar-t" aria-hidden="true"><i class="' + x.k + '" style="width:' + (r[1] / 18 * 100) + '%"></i></div><div class="amt mono">' + amt + '<small>' + (x.k === 'animal' ? 'Heme' : 'Non-heme') + '</small></div>' + detail + '</li>';
+    }).join('');
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.more') : null;
+    if (!b) { return; }
+    var li = b.closest('li');
+    var ul = li.querySelector('.gitems');
+    if (!ul) { return; }
+    var opening = ul.hidden;
+    ul.hidden = !opening;
+    b.setAttribute('aria-expanded', opening ? 'true' : 'false');
+    b.querySelector('.lbl').textContent = opening ? 'Hide' : 'See what’s in it';
+    if (b.dataset.g) { openG[b.dataset.g] = opening; }
+  });
+  $$('.chip').forEach(function (c) {
+    c.addEventListener('click', function () {
+      filter = c.dataset.f;
+      $$('.chip').forEach(function (x) { x.setAttribute('aria-pressed', x === c ? 'true' : 'false'); });
+      renderFoods();
+    });
+  });
+
+  /* shop */
+  function renderShop() {
+    var total = 0, lines = [];
+    Object.keys(PACKS).forEach(function (id) {
+      $('#q-' + id).textContent = qty[id];
+      if (qty[id] > 0) {
+        var amt = qty[id] * PACKS[id].price;
+        total += amt;
+        lines.push('<li><span>' + qty[id] + ' × ' + PACKS[id].n + ' count</span><span class="mono">' + money(amt) + '</span></li>');
+      }
+    });
+    $('#lines').innerHTML = lines.length ? lines.join('') : '<li><span>Your order is empty.</span><span></span></li>';
+    $('#subtotal').textContent = money(total);
+    $('#checkout').disabled = total === 0;
+    $('#status').textContent = '';
+  }
+  $$('[data-pack]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var id = b.dataset.pack;
+      qty[id] = Math.max(0, Math.min(20, qty[id] + Number(b.dataset.d)));
+      renderShop();
+    });
+  });
+  $('#checkout').addEventListener('click', function () {
+    $('#status').textContent = 'Checkout is not connected in this preview. Link your store payment page to this button.';
+  });
+
+  /* map */
+  var NS = 'http://www.w3.org/2000/svg';
+  var pinG = $('#pins');
+  PINS.forEach(function (p, i) {
+    var g = document.createElementNS(NS, 'g');
+    g.setAttribute('class', 'pin' + (i === activePin ? ' on' : ''));
+    g.setAttribute('tabindex', '0');
+    g.setAttribute('role', 'button');
+    g.setAttribute('aria-label', p.n + ', ' + p.a + ', sample location');
+    g.innerHTML = '<circle class="halo" cx="' + p.x + '" cy="' + p.y + '" r="28"></circle><circle class="dot" cx="' + p.x + '" cy="' + p.y + '" r="14"></circle><text x="' + p.x + '" y="' + (p.y + 4.5) + '">' + (i + 1) + '</text>';
+    g.addEventListener('click', function () { setPin(i); });
+    g.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPin(i); } });
+    pinG.appendChild(g);
+  });
+  $('#stores').innerHTML = PINS.map(function (p, i) {
+    return '<li><button class="store" type="button" data-i="' + i + '" aria-pressed="' + (i === activePin) + '"><span class="n">' + (i + 1) + '</span><span><b>' + p.n + '</b><small>' + p.a + ' &middot; Sample location</small></span></button></li>';
+  }).join('');
+  $$('.store').forEach(function (b) { b.addEventListener('click', function () { setPin(Number(b.dataset.i)); }); });
+  function setPin(i) {
+    activePin = i;
+    $$('.pin').forEach(function (g, j) { g.setAttribute('class', 'pin' + (j === i ? ' on' : '')); });
+    $$('.store').forEach(function (b, j) { b.setAttribute('aria-pressed', j === i ? 'true' : 'false'); });
+  }
+  function updateMapsLink() {
+    var v = $('#zip').value.trim();
+    var url = 'https://www.google.com/maps/search/' + encodeURIComponent(v ? 'pharmacy near ' + v : 'pharmacy near me');
+    $('#mapsLink').href = url;
+    $('#mapsLink2').href = url;
+  }
+  $('#zip').addEventListener('input', updateMapsLink);
+  $('#findForm').addEventListener('submit', function (e) { e.preventDefault(); });
+
+  /* intro video */
+  var vid = $('#introVideo'), vPlay = $('#vPlay'), vSound = $('#vSound');
+  function syncV() {
+    vPlay.textContent = vid.paused ? 'Play' : 'Pause';
+    vPlay.setAttribute('aria-pressed', vid.paused ? 'true' : 'false');
+    vSound.textContent = vid.muted ? 'Sound on' : 'Sound off';
+    vSound.setAttribute('aria-pressed', vid.muted ? 'false' : 'true');
+  }
+  vPlay.addEventListener('click', function () {
+    if (vid.paused) { var p = vid.play(); if (p && p.catch) { p.catch(function () {}); } } else { vid.pause(); }
+  });
+  vSound.addEventListener('click', function () {
+    vid.muted = !vid.muted;
+    if (!vid.muted && vid.paused) { var p = vid.play(); if (p && p.catch) { p.catch(function () {}); } }
+    syncV();
+  });
+  vid.addEventListener('play', syncV);
+  vid.addEventListener('pause', syncV);
+  try {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { vid.pause(); }
+  } catch (e) {}
+  syncV();
+
+  setColor(sel);
+  renderTally();
+  renderFoods();
+  renderShop();
+})();
+</script>
+
+</body></html>
